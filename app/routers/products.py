@@ -1,20 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
-
 from http import HTTPStatus
 
 from .. import crud, schemas
-from ..dependencies import get_db
+from ..dependencies import get_db, limiter
 
 
 router = APIRouter(
-    prefix="/products",
-    tags=["product"],
-    responses={404: {"description": "Not found"}},
+    prefix='/products',
+    tags=['product'],
+    responses={404: {'description': 'Not found'}},
 )
 
 @router.get('/', response_model=list[schemas.ProductSchema])
-async def get_products(offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+@limiter.limit('10/minute')
+async def get_products(request: Request, offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     '''
     Returns a list of all products with its details
     '''
@@ -24,7 +24,8 @@ async def get_products(offset: int = 0, limit: int = 100, db: Session = Depends(
     return products
 
 @router.get('/{id}', response_model=schemas.ProductSchema)
-async def get_product_by_id(id: int, db: Session = Depends(get_db)):
+@limiter.limit('10/minute')
+async def get_product_by_id(request: Request, id: int, db: Session = Depends(get_db)):
     '''
     Returns a product with its details by the given product id
     '''

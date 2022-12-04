@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from http import HTTPStatus
 
 from .. import crud, schemas
-from ..dependencies import get_db
+from ..dependencies import get_db, limiter
 
 
 router = APIRouter(
@@ -14,7 +14,8 @@ router = APIRouter(
 )
 
 @router.get('/', response_model=list[schemas.CategorySchema])
-async def get_categories(offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+@limiter.limit('10/minute')
+async def get_categories(request: Request, offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     '''
     Returns a list of all categories with their products
     '''
@@ -24,7 +25,8 @@ async def get_categories(offset: int = 0, limit: int = 100, db: Session = Depend
     return categories
 
 @router.get('/{id}', response_model=schemas.CategorySchema)
-async def get_category_by_id(id: int, db: Session = Depends(get_db)):
+@limiter.limit('10/minute')
+async def get_category_by_id(request: Request, id: int, db: Session = Depends(get_db)):
     '''
     Returns a category with its products by the given category id
     '''

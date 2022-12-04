@@ -3,7 +3,12 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
+from slowapi.errors import RateLimitExceeded
+from slowapi import Limiter, _rate_limit_exceeded_handler
+
 from .routers import products, categories
+
+from .dependencies import limiter
 
 
 app = FastAPI(
@@ -14,6 +19,8 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
 )
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # @app.on_event('startup')
 # async def startup():
