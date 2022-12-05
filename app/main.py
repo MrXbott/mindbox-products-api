@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 from slowapi.errors import RateLimitExceeded
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
 
 from .routers import products, categories
 
@@ -13,7 +13,7 @@ from .dependencies import limiter
 
 app = FastAPI(
     # title=config.PROJECT_NAME,
-    description='Study project using FastAPI + Elasticsearch',
+    description='Test task for Mindbox',
     docs_url='/api/docs',
     openapi_url='/api/docs.json',
     default_response_class=ORJSONResponse,
@@ -29,6 +29,10 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # @app.on_event('shutdown')
 # async def shutdown():
 #     pass
+
+@app.get("/")
+async def read_main():
+    return {"msg": "Hello World"}
 
 # to do: get api prefix/version from config
 api_prefix = '/api/v1'

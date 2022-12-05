@@ -9,7 +9,6 @@ from ..dependencies import get_db, limiter
 router = APIRouter(
     prefix='/products',
     tags=['product'],
-    responses={404: {'description': 'Not found'}},
 )
 
 @router.get('/', response_model=list[schemas.ProductSchema])

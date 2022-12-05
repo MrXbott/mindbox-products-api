@@ -10,7 +10,6 @@ from ..dependencies import get_db, limiter
 router = APIRouter(
     prefix="/categories",
     tags=["category"],
-    responses={404: {"description": "Not found"}},
 )
 
 @router.get('/', response_model=list[schemas.CategorySchema])
