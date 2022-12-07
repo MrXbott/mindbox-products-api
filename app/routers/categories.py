@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import DatabaseError
 
 from http import HTTPStatus
 
@@ -18,10 +19,12 @@ async def get_categories(request: Request, offset: int = 0, limit: int = 100, db
     '''
     Returns a list of all categories with their products
     '''
-    categories = crud.get_categories(db=db, offset=offset, limit=limit)
-    if not categories:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
-    return categories
+    try:
+        categories = crud.get_categories(db=db, offset=offset, limit=limit)
+    except DatabaseError as e:
+        raise HTTPException(status_code=500, detail='db problems')
+    else:
+        return categories
 
 @router.get('/{id}', response_model=schemas.CategorySchema)
 @limiter.limit('10/minute')
@@ -29,7 +32,11 @@ async def get_category_by_id(request: Request, id: int, db: Session = Depends(ge
     '''
     Returns a category with its products by the given category id
     '''
-    category = crud.get_category_by_id(db=db, category_id=id)
-    if not category:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
-    return category
+    try:
+        category = crud.get_category_by_id(db=db, category_id=id)
+    except DatabaseError as e:
+        raise HTTPException(status_code=500, detail='db problems')
+    else:
+        if not category:
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
+        return category
