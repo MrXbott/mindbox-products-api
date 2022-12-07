@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from . import models, schemas
+from . import models
 
 
 def get_products(db: Session, offset: int = 0, limit: int = 100):
